@@ -1,0 +1,26 @@
+<%-- any content can be specified here e.g.: --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page pageEncoding="UTF-8" %>
+<c:set var="path" scope="page" value="${pageContext.request.servletPath}"></c:set>
+
+<nav id="navi" class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="#">
+    <c:if test="${!path.equals('/bday.jsp')}"><img src='icons/favicon-32x32.png' style="margin-bottom: 5px;" alt='icon'></c:if>
+        <span id="websiteName">Johnson's Music Box</span></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link current" id="gohome" href="index">Home</a>
+            </li>
+            <!--<li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+            </li>-->
+        </ul>
+    </div>  
+</nav>
