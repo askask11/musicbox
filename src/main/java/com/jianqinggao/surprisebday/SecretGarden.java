@@ -34,7 +34,7 @@ public class SecretGarden implements AutoCloseable
     
     public static SecretGarden getDefaultInstance() throws SQLException, ClassNotFoundException
     {
-        return new SecretGarden("musicbox", "db.jianqinggao.com:3306", "Main", "45465445_AA", true);
+        return new SecretGarden("musicbox", "db.jianqinggao.com:3306", "musicbox", "kZ3JrBVPHEcElUxW", true);
     }
     
     public void establishConnection(String dbName, String host, String dbUsername, String dbPassword, boolean useSSL) throws SQLException, ClassNotFoundException
