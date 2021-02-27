@@ -1,11 +1,14 @@
 /*
  * Author: jianqing
  * Date: Nov 4, 2020
- * Description: This document is created for
+ * Description: This document is created for the controller of this website.
  */
 package com.jianqinggao.surprisebday.controller;
 
-import com.google.gson.Gson;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.jianqinggao.surprisebday.Alerts;
 import com.jianqinggao.surprisebday.SecretGarden;
 import java.io.IOException;
@@ -18,12 +21,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- *
- * @author jianqing
+ * Servlet class for the app.
+ * @author Jianqing Gao
  */
 @WebServlet(name = "Servlet", urlPatterns =
 {
-    "/GetFaviSongs", "/bday", "/index", "/RecommendMusic","/WebsiteFeedback"
+    "/GetFaviSongs", "/bday", "/index", "/RecommendMusic", "/WebsiteFeedback"
 }//,loadOnStartup = 1
 )
 public class Servlet extends HttpServlet
@@ -87,7 +90,7 @@ public class Servlet extends HttpServlet
             case "/WebsiteFeedback":
                 processWebsiteFeedbackGET(request, response);
                 break;
-                    
+
             default:
                 processRequest(request, response);
                 break;
@@ -122,7 +125,7 @@ public class Servlet extends HttpServlet
 
     protected void processRecommendMusicGET(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
     {
-        String title,email;
+        String title, email;
         //need to do this on localhost, but NO on remote host, it works fine.
         //title = new String(request.getParameter("title").getBytes("ISO8859_1"), "UTF-8");
         title = request.getParameter("title");
@@ -130,30 +133,31 @@ public class Servlet extends HttpServlet
         //response.setContentType("plain/text");
         response.setCharacterEncoding("utf-8");
         PrintWriter w = response.getWriter();
-       // w.println("-请稍后");
-       w.println("<html><head><script src=\"https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js\" integrity=\"sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo\" crossorigin=\"anonymous\"></script>"
-               + "<script src=\"js/jquery.min.js\"></script>"
-               + "<link rel=\"stylesheet\" href='css/bootstrap.min.css'>"
-               + "</head><body>");
-        if(areValidStrings(title,email))
+        // w.println("-请稍后");
+        w.println("<html><head><script src=\"https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js\" integrity=\"sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo\" crossorigin=\"anonymous\"></script>"
+                + "<script src=\"js/jquery.min.js\"></script>"
+                + "<link rel=\"stylesheet\" href='css/bootstrap.min.css'>"
+                + "</head><body>");
+        
+        if (StrUtil.isAllNotBlank(title,email))
         {
-            try(SecretGarden sg = SecretGarden.getDefaultInstance())
+            try (SecretGarden sg = SecretGarden.getDefaultInstance())
             {
                 int o = sg.insertIntoRecommendations(title, email);
-                if(o==1)
+                if (o == 1)
                 {
                     w.println(Alerts.successMessage("成功", "您的反馈已提交，感谢您的推荐！"));
                 }
-            } catch (SQLException|ClassNotFoundException e)
+            } catch (SQLException | ClassNotFoundException e)
             {
                 w.println(Alerts.dangerMessage("网络不佳", "抱歉，我们出错了，请稍后再试"));
-                
+
             }
-        }else
+        } else
         {
             w.println(Alerts.warningMessage("信息无效", "请输入有效的信息"));
         }
-        
+
         w.println("</body></html>");
         w.flush();
     }
@@ -161,12 +165,12 @@ public class Servlet extends HttpServlet
     protected void processWebsiteFeedbackGET(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
     {
         String feedback = request.getParameter("feedback");
-        
+
         System.out.println(feedback);
         
-        if(areValidStrings(feedback))
+        if (StrUtil.isNotBlank(feedback))
         {
-            try(SecretGarden sg = SecretGarden.getDefaultInstance())
+            try (SecretGarden sg = SecretGarden.getDefaultInstance())
             {
                 int f = Integer.parseInt(feedback);
                 sg.insertIntoFeedback(f);
@@ -176,32 +180,31 @@ public class Servlet extends HttpServlet
             }
         }
     }
+
     protected void processGetFaviSongsGET(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
     {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
-        Gson h = new Gson();
+        JSONObject out = JSONUtil.createObj();
 
-        try (SecretGarden g = SecretGarden.getDefaultInstance())
+        try (PrintWriter writer = response.getWriter())
         {
-            response.getWriter().write("{\"code\":200, \"response\":" + h.toJson(g.selectFromMusics()) + "}");
-        } catch (SQLException | ClassNotFoundException e)
-        {
-            response.getWriter().write("{\"code\":200, \"response\": \"数据库出了点小问题哦\"}");
-        }
 
-    }
-    
-    public static boolean areValidStrings(String... strs)
-    {
-        for (String str : strs)
-        {
-            if(str==null||str.isEmpty())
+            try (SecretGarden g = SecretGarden.getDefaultInstance())
             {
-                return false;
+                
+                JSONArray respArray = JSONUtil.parseArray(g.selectFromMusics());
+                out.putOnce("code", 200);
+                out.putOnce("response", respArray);
+            } catch (SQLException | ClassNotFoundException e)
+            {
+                out.putOnce("code", 500);
+                out.putOnce("response", "数据库出了点小问题哦");
             }
-        }
-        return true;
+            writer.write(out.toStringPretty());
+            writer.flush();
+        }    
     }
 
+    
 }

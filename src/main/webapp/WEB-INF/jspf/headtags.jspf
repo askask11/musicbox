@@ -18,7 +18,7 @@
 <meta name="msapplication-TileColor" content="#66ccff">
 <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
 <meta name="theme-color" content="#66ccff">
-
+<meta content='maximum-scale=1.0, initial-scale=1.0, width=device-width' name='viewport'>
 <link rel="stylesheet" href="css/bootstrap.min.css">
 <!-- JS, Popper.js, and jQuery -->
 <!--Don't use code.jquery it will fail in China and delay the internet-->
